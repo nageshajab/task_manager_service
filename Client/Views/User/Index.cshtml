@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Client.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMsg))
+{
+    <div>
+        <h3 style="color:purple">@ViewBag.ErrorMsg</h3>
+    </div>
+}
+else
+{
+   
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Surname)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DisplayName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.GivenName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ClientCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TaxId)
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Surname)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DisplayName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GivenName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TaxId)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.ObjectId }) 
+                      
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
