@@ -31,12 +31,13 @@ namespace TodoListService
                     webBuilder.ConfigureKestrel(serverOptions =>
                     {
                         serverOptions.ListenAnyIP(80); // HTTP
-                        serverOptions.ListenAnyIP(443, listenOptions =>
-                        {
-                            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                            
-                            listenOptions.UseHttps("/https/aspnetapp.pfx", certPassword);
-                        }); // HTTPS
+                        serverOptions.ListenAnyIP(443);//https
+                        //serverOptions.ListenAnyIP(443, listenOptions =>
+                        //{
+                        //    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+
+                        //   // listenOptions.UseHttps("/https/aspnetapp.pfx", certPassword);
+                        //}); // HTTPS
                     });
                     webBuilder.UseStartup<Startup>();
                 });

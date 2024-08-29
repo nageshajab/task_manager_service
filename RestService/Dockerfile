@@ -7,13 +7,6 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# Copy the certificate
-COPY ["RestService/aspnetapp.pfx", "/https/aspnetapp.pfx"]
-
-# Set environment variables
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=password
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
