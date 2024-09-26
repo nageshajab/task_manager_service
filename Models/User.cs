@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TodoListService.Models
+namespace TaskManager.Models
 {
     public class User
     {
-        public string email { get; set; }
+        [BsonId]
+        public ObjectId Id { get; set; }
 
-        public string ObjectId { get; set; }
+        [BsonElement("password")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$", ErrorMessage = "Password must be between 8 and 15 characters and contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.")]
+        public string PasswordHash { get; set; }
 
-        public string Surname { get; set; }
+        [BsonElement("email")]
+        public string Email { get; set; }
 
-        public string DisplayName { get; set; }
-
-        public string GivenName { get; set; }
-
-        public string ClientCode { get; set; }  
-
-        public string TaxId { get; set; }
+        [BsonElement("roles")]
+        public List<string > Roles { get; set; }
     }
 }
