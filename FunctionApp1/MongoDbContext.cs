@@ -32,6 +32,7 @@ namespace FunctionApp1
         public DbSet<Role> Roles { get; init; }
         public DbSet<User> Users { get; init; }
         public DbSet<TaskManager.Models.Task > Tasks { get; init; }
+        public DbSet<BlogPost> BlogPosts{ get; init; }
 
         public static MongoDbContext Create(IMongoDatabase database) =>
             new(new DbContextOptionsBuilder<MongoDbContext>()
