@@ -23,6 +23,7 @@ namespace FunctionApp1
         public DbSet<BlogPost> BlogPosts{ get; init; }
         public DbSet<Rent > Rents { get; init; }
         public DbSet<SugarReading> SugarReadings { get; init; }
+        public DbSet<File> Files{ get; init; }
 
         public static MongoDbContext Create(IMongoDatabase database) =>
             new(new DbContextOptionsBuilder<MongoDbContext>()
