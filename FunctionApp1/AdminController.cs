@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Web.Http;
 using System.Collections.Generic;
+using ZstdSharp.Unsafe;
 
 namespace FunctionApp1
 {
@@ -63,6 +64,40 @@ namespace FunctionApp1
                     UserId = user.Id.ToString()
                 };
                 response =new OkObjectResult(token);
+            }
+            return response;
+        }
+
+        [FunctionName("changepassword")]
+        public async Task<IActionResult> ChangePassword(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
+        {
+            log.LogInformation("C# HTTP trigger function processed a request.");
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            User login = JsonConvert.DeserializeObject<User>(requestBody);
+
+            string responseMessage = string.IsNullOrEmpty(login.Email)
+                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                : $"Hello, {login.Email}. This HTTP triggered function executed successfully.";
+
+            IActionResult response = new UnauthorizedResult();
+
+            var user = _context.Users.Where(u => u.Email == login.Email).FirstOrDefault();
+            if (user == null)
+                return new OkObjectResult("Invalid credentials");
+
+            var hashedPassword = SecurePasswordHasher.Hash(login.PasswordHash);
+
+            var passwordhash = SecurePasswordHasher.Verify(login.PasswordHash, hashedPassword);
+
+            if (passwordhash)
+            {
+                user.PasswordHash = SecurePasswordHasher.Hash(login.NewPassword);
+                _context.Users.Update(user);
+                _context.SaveChanges();
+              
+                response = new OkObjectResult("Password changed");
             }
             return response;
         }
