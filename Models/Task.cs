@@ -4,19 +4,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TaskManager.Models
 {
+    /// <summary>
+    /// This class will also be used to store 'Rents' and set reminders
+    /// Use ItemType to set whether it is specially for rent or not
+    /// </summary>
     public class Task
     {
         [BsonId]
         public ObjectId Id { get; set; }
 
+        [BsonElement("repeatid")]
+        public Guid RepeatId { get; set; }
+
         [BsonElement("title")]
         public string Title { get; set; } = string.Empty;
+
         [BsonElement("description")]
         public string Description { get; set; } = string.Empty;
 
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         [BsonElement("dueDate")]
         public DateTime DueDate { get; set; }
+
 
         [BsonElement("priority")]
         public Priority Priority { get; set; }
@@ -29,15 +38,20 @@ namespace TaskManager.Models
 
         [NotMapped]
         public bool CanRepeat { get; set; }
+
         [NotMapped]
         public RepeatType RepeatType { get; set; }
+
+        [NotMapped]
+        public DateTime EndDate { get; set; }
     }
 
     public class Task1
     {        
         public string Id { get; set; }
-
+        public string RepeatId { get; set; }
         public string Title { get; set; } = string.Empty;
+
         public string Description { get; set; } = string.Empty;
 
         public DateTime DueDate { get; set; }

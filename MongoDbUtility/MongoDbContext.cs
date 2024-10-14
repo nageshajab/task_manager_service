@@ -12,7 +12,7 @@ using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore.Extensions;
 using TaskManager.Models;
 
-namespace FunctionApp1
+namespace MongoDbUtility
 {
     public class MongoDbContext : DbContext
     {
@@ -22,7 +22,7 @@ namespace FunctionApp1
         public DbSet<TaskManager.Models.Task > Tasks { get; init; }
         public DbSet<BlogPost> BlogPosts{ get; init; }
         public DbSet<SugarReading> SugarReadings { get; init; }
-        public DbSet<File>? Files{ get; init; }
+        public DbSet<TaskManager.Models.File>? Files{ get; init; }
         public DbSet<Url> Urls{ get; init; }
 
         public static MongoDbContext Create(IMongoDatabase database) =>

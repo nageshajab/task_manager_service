@@ -9,12 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
-using TaskManagerService;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Web.Http;
 
 namespace FunctionApp1
 {
@@ -28,27 +22,28 @@ namespace FunctionApp1
         }
 
         [FunctionName("sugarreadinglist")]
-        public  async Task<IActionResult> SugarReadingList(
+        public async Task<IActionResult> SugarReadingList(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            SugarReadingSearch sugarReadingsearch = JsonConvert.DeserializeObject<SugarReadingSearch> (requestBody);
+            SugarReadingSearch sugarReadingsearch = JsonConvert.DeserializeObject<SugarReadingSearch>(requestBody);
 
-            IActionResult response =new  UnauthorizedResult();
+            IActionResult response = new UnauthorizedResult();
 
             IQueryable<SugarReading> sugarReadings;
             try
             {
-                sugarReadings= _context.SugarReadings.Where(t => t.UserId == sugarReadingsearch.UserId);
+                sugarReadings = _context.SugarReadings.Where(t => t.UserId == sugarReadingsearch.UserId);
 
                 sugarReadingsearch.TotalRecords = sugarReadings.Count();
 
-                //pagination at work
-                sugarReadings= sugarReadings.Skip((sugarReadingsearch.PageNumber - 1) * 10).Take(10);
-
+                if (sugarReadingsearch.PageNumber != 0)
+                {   
+                    sugarReadings = sugarReadings.Skip((sugarReadingsearch.PageNumber - 1) * 10).Take(10);
+                }
                 if (sugarReadingsearch.SortBy != string.Empty)
                 {
                     switch (sugarReadingsearch.SortBy.ToLower())
@@ -65,19 +60,19 @@ namespace FunctionApp1
             SugarReadingIndexViewModel indexViewModel = new SugarReadingIndexViewModel()
             {
                 ListOfSugarReadings = sugarReadings.ToList(),
-                SugarReadingSearch= sugarReadingsearch
+                SugarReadingSearch = sugarReadingsearch
             };
-            return new OkObjectResult( indexViewModel);
+            return new OkObjectResult(indexViewModel);
         }
 
         [FunctionName("getsugarreading")]
-        public async Task<IActionResult> getSugarReading([HttpTrigger(AuthorizationLevel.Anonymous,"post",Route =null)]HttpRequest req,ILogger log)
+        public async Task<IActionResult> getSugarReading([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestbody = await new StreamReader(req.Body).ReadToEndAsync();
-            
+
             string id = JsonConvert.DeserializeObject<SugarReading1>(requestbody).Id.ToString();
 
-            SugarReading  sugarReadingfromdb= _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == id);
+            SugarReading sugarReadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == id);
             return new OkObjectResult(sugarReadingfromdb);
         }
 
@@ -95,20 +90,20 @@ namespace FunctionApp1
         public async Task<IActionResult> UpdateSugarReading([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            SugarReading1 sugarReading1= JsonConvert.DeserializeObject<SugarReading1>(requestBody);
+            SugarReading1 sugarReading1 = JsonConvert.DeserializeObject<SugarReading1>(requestBody);
             SugarReading sugarreadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == sugarReading1.Id.ToString());
 
-            if (sugarreadingfromdb== null)
+            if (sugarreadingfromdb == null)
             {
                 return new NotFoundResult();
             }
 
-            sugarreadingfromdb.PP= sugarReading1.PP;
-            sugarreadingfromdb.Fasting= sugarReading1.Fasting;
-            sugarreadingfromdb.Medicines= sugarReading1.Medicines;
+            sugarreadingfromdb.PP = sugarReading1.PP;
+            sugarreadingfromdb.Fasting = sugarReading1.Fasting;
+            sugarreadingfromdb.Medicines = sugarReading1.Medicines;
             sugarreadingfromdb.Date = sugarReading1.Date;
-            sugarreadingfromdb.Weight= sugarReading1.Weight;
-                        
+            sugarreadingfromdb.Weight = sugarReading1.Weight;
+
             _context.SaveChanges();
             return new OkObjectResult(sugarreadingfromdb);
         }
@@ -121,7 +116,7 @@ namespace FunctionApp1
 
             SugarReading sugarReadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == id.ToString());
 
-            if (sugarReadingfromdb== null)
+            if (sugarReadingfromdb == null)
             {
                 return new NotFoundResult();
             }

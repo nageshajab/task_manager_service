@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TaskManager.Models
+﻿namespace TaskManager.Models
 {
     public class TaskSearch
     {
@@ -15,5 +9,6 @@ namespace TaskManager.Models
         public string SortBy { get; set; } = string.Empty;
         public int PageNumber { get; set; } = 1;
         public int TotalRecords { get; set;} = 0;
+
     }
 }

@@ -7,7 +7,7 @@
     "Jwt.Key": "your-32-character-long-secret-key",
     "Jwt.Issuer": "http://localhost:7202/",
     "Jwt.Audience": "http://localhost:7202/",
-    //"ApplicationDbContext": "Server=tcp:azb2c.database.windows.net,1433;Initial Catalog=azb2c;Persist Security Info=False;User ID=nageshajab;Password=Password1@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+   
     "ConnectionStrings:ApplicationDbContext": ""
   },
   "Host": {
