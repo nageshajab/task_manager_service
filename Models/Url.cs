@@ -23,6 +23,9 @@ namespace TaskManager.Models
         [BsonElement("actress")]
         public string? Actress { get; set; }
 
+        [BsonElement("actressurl")]
+        public string? ActressUrl { get; set; }
+
         [BsonElement("description")]
         public string Description { get; set; }
 
@@ -36,6 +39,7 @@ namespace TaskManager.Models
         public string UserId { get; set; }
         public string Link { get; set; }
         public string Actress { get; set; }
+        public string ActressUrl { get; set; }
         public string Description { get; set; }
         public string[] Tags { get; set; }
     }
@@ -44,6 +48,7 @@ namespace TaskManager.Models
     {
         public string UserId { get; set; } = string.Empty;
         public string SortBy { get; set; } = string.Empty;
+        public string ActressUrl { get; set; }=string.Empty;
         public int PageNumber { get; set; } = 1;
         public int TotalRecords { get; set; } = 0;
         public string[] Tags { get; set; }

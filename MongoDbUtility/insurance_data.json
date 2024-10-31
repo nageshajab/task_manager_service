@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Nagesh Ajab",
+    "city": "new york",
+    "address": "8776 Pennsylvania St.Poughkeepsie, NY 12601",
+    "InsuranceCoverage": [
+      "Heart disease",
+      "Cancer",
+      "Diabetes",
+      "Arthritis"
+    ]
+  }
+]

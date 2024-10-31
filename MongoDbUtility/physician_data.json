@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Dr Oakleigh Wiley",
+    "specialty": "orthopedics",
+    "distance": 12,
+    "rating": 5,
+    "city": "new york",
+    "address": "8776 Pennsylvania St.Poughkeepsie, NY 12601"   
+  },
+  {
+    "name": "Dr Mathew Walters",
+    "specialty": "dentist",
+    "distance": 10,
+    "city": "chicago",
+    "address": "833 S State St, Chicago, IL 60605"
+  },
+  {
+    "name": "Dr Samara Oliver",
+    "specialty": "Diabetic",
+    "distance": 1,
+    "city": "austin",
+    "address": "1108 Lavaca St suite 110-488, Austin, TX 78701"
+  },
+  {
+    "name": "Dr Allison Lu",
+    "specialty": "homeopath",
+    "distance": 4,
+    "city": "Oklahoma",
+    "address": "4202 Northwest Expy, Oklahoma City, OK 73116"
+  },
+  {
+    "name": "Dr Karson Richardson",
+    "specialty": "Diabetic",
+    "distance": 20,
+    "city": "Detroit",
+    "address": "150 W Jefferson Ave, Detroit, MI 48226"
+  },
+  {
+    "name": "Peter Banitt",
+    "specialty": "Cardiologist",
+    "city": "Phoenix",
+    "address": "4530 E Ray Rd #125, Phoenix, AZ 85044"
+  },
+  {
+    "name": "Peter Banitt",
+    "specialty": "diabetic",
+    "city": "Oregon",
+    "address": "2517 SE 179th Ave, Portland, Oregon"
+  }
+]

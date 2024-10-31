@@ -11,6 +11,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore.Extensions;
 using TaskManager.Models;
+using Models;
 
 namespace MongoDbUtility
 {
@@ -24,6 +25,8 @@ namespace MongoDbUtility
         public DbSet<SugarReading> SugarReadings { get; init; }
         public DbSet<TaskManager.Models.File>? Files{ get; init; }
         public DbSet<Url> Urls{ get; init; }
+        public DbSet<Physicians> Physicians { get; init; } 
+        public DbSet<Patient> Patients { get; init; }
 
         public static MongoDbContext Create(IMongoDatabase database) =>
             new(new DbContextOptionsBuilder<MongoDbContext>()

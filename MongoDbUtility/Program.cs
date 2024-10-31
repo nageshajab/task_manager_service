@@ -1,5 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Configuration;
+using Newtonsoft.Json;
+using Models;
 
 namespace MongoDbUtility
 {
@@ -13,16 +15,20 @@ namespace MongoDbUtility
             var client = new MongoClient(connstring);
 
             MongoDbContext context= MongoDbContext.Create(client.GetDatabase("taskmanager"));
-            
-            List<TaskManager.Models.Task> tasks = context.Tasks.ToList();
 
-            foreach (var task in tasks)
+            var patientdata = File.ReadAllText("insurance_data.json");
+            var patients = JsonConvert.DeserializeObject<List< Models.Patient>>(patientdata);
+
+            var physiciandata = File.ReadAllText("physician_data.json");
+            var physicians = JsonConvert.DeserializeObject<List<Models.Physicians>>(physiciandata);
+
+            context.Patients.Add(patients.First());
+
+            foreach(Physicians p in physicians)
             {
-                if (task.RepeatId==Guid.Empty)
-                //repeatid
-                task.RepeatId = new Guid();
-                context.Tasks.Update(task);
+                context.Physicians.Add(p);
             }
+            context.SaveChanges();
         }
     }
 }

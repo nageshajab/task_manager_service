@@ -10,8 +10,6 @@ using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.Azure.WebJobs.Host.Listeners;
 
 namespace FunctionApp1
 {
@@ -198,10 +196,10 @@ namespace FunctionApp1
             if (urlfromdb== null)
             {
                 return new NotFoundResult();
-            }
-            
+            }            
 
             urlfromdb.Actress= url1.Actress;
+            urlfromdb.ActressUrl= url1.ActressUrl;
             urlfromdb.UserId = url1.UserId;
             urlfromdb.Tags= url1.Tags;
             urlfromdb.Tags = RemoveEmptyTags(urlfromdb).ToArray();
