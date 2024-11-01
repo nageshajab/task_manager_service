@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using MongoDB.Driver;
 using TaskManager.Models;
 
@@ -14,6 +15,7 @@ namespace FunctionApp1
         public DbSet<SugarReading> SugarReadings { get; init; }
         public DbSet<File>? Files{ get; init; }
         public DbSet<Url> Urls{ get; init; }
+        public DbSet<Patient> Patients { get; init; }
 
         public static MongoDbContext Create(IMongoDatabase database) =>
             new(new DbContextOptionsBuilder<MongoDbContext>()

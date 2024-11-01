@@ -20,5 +20,11 @@ namespace Models
         [BsonElement]
         public required string[] InsuranceCoverage { get; set; }
 
+        [BsonElement]
+        public int therapyVisitsRemaining { get; set; }
+
+        [BsonElement]
+        public int totalTherapyVisits { get; set; }
+
     }
 }
