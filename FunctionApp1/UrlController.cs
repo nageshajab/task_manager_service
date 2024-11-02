@@ -80,7 +80,7 @@ namespace FunctionApp1
             List<string> tags = new();
             try
             {
-                lstUrls= _context.Urls.Where(t => t.UserId == urlSearch.UserId);
+                lstUrls= _context.Urls.Where(t => t.UserId == urlSearch.UserId).OrderBy(o=>o.Description);
 
                 returnlist = lstUrls.ToList();
 
