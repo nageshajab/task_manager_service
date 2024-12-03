@@ -1,52 +1,16 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace TaskManager.Models
+﻿namespace TaskManager.Models
 {
     public class Movie
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
-
-        [BsonElement("name")]
+        public int Id { get; set; } 
         public string Name { get; set; } = string.Empty;
-
-        [BsonElement("genre")]
         public Genre Genre { get; set; }
-
-        [BsonElement("rating")]
         public double Rating { get; set; }
-
-        [BsonElement("description")]
         public string Description { get; set; } = string.Empty;
-
-        [BsonElement("language")]
         public Langauge Language { get; set; } 
-
-        [BsonElement("actors")]
         public List<string> Actors { get; set; }
-
-        [BsonElement("userId")]
-        public required string UserId { get; set; }
-    }
-    public class Movie1
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; } = string.Empty;
-
-        public Genre Genre { get; set; }
-
-        public double Rating { get; set; }
-
-        public string Description { get; set; } = string.Empty;
-
-        public Langauge Language { get; set; } 
-
-        public string Actors { get; set; } 
-
-        public string UserId { get; set; }
+        public List<string> Tags { get; set; }
+        public int UserId { get; set; }
     }
  
     public enum Langauge
@@ -76,7 +40,7 @@ namespace TaskManager.Models
 
     public class MovieSearch
     {
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; } 
         public string SortBy { get; set; } = string.Empty;
         public int PageNumber { get; set; } = 1;
         public int TotalRecords { get; set; } = 0;

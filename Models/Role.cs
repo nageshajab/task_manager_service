@@ -1,13 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace TaskManager.Models
+﻿namespace TaskManager.Models
 {
     public class Role
     {
-        [BsonId]
-        public ObjectId Id { get;set; }
-        [BsonElement("name")]
+        public int Id { get;set; }
         public string Name{ get; set; }
     }
 

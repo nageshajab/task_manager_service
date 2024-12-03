@@ -10,20 +10,12 @@ using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.Azure.WebJobs.Host.Listeners;
+using DAL;
 
 namespace FunctionApp1
 {
     public class FileController
     {
-        private readonly MongoDbContext _context;
-
-        public FileController(MongoDbContext context)
-        {
-            _context = context;
-        }
-
         [FunctionName("taglist")]
         public async Task<IActionResult> TagList(
            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
@@ -35,26 +27,12 @@ namespace FunctionApp1
 
             IActionResult response = new UnauthorizedResult();
 
-            IQueryable<TaskManager.Models.File> lstFiles;
             List<TaskManager.Models.File> returnlist = new();
             List<string> tags = new();
             try
             {
-                lstFiles = _context.Files.Where(t => t.UserId == fileSearch.UserId);
-
-                returnlist = lstFiles.ToList();
-
-                foreach (var file in lstFiles)
-                {
-                    if (file.Tags == null)
-                        continue;
-
-                    foreach (string str in file.Tags)
-                    {
-                        if (!tags.Contains(str.Trim()))
-                            tags.Add(str.Trim());
-                    }
-                }
+                FileManager fileManager= new FileManager();
+                tags = fileManager.GetTagsByUserId( fileSearch.UserId);                
             }
             catch (Exception)
             {
@@ -77,48 +55,13 @@ namespace FunctionApp1
 
             IActionResult response = new UnauthorizedResult();
 
-            IQueryable<TaskManager.Models.File> lstFiles;
+            List<TaskManager.Models.File> lstFiles;
             List<TaskManager.Models.File> returnlist = new();
             List<string> tags = new();
             try
             {
-                lstFiles = _context.Files.Where(t => t.UserId == fileSearch.UserId);
-
-                returnlist = lstFiles.ToList();
-
-                foreach (var file in lstFiles)
-                {
-                    if (file.Tags == null)
-                        continue;
-
-                    foreach (string str in file.Tags)
-                    {
-                        if (!tags.Contains(str))
-                            tags.Add(str);
-                    }
-                }
-
-                //if filesearch contains any tag
-                if (fileSearch.Tags != null && fileSearch.Tags.Length > 0)
-                {
-                    //iterate over files returned from database
-                    foreach (var file in lstFiles)
-                    {
-                        //iterate over filesearch tags
-                        foreach (string tag in fileSearch.Tags)
-                        {
-                            if (tag.Trim() == string.Empty)
-                            {
-                                continue;
-                            }
-
-                            if (!file.Tags.Contains(tag))
-                            {
-                                returnlist.Remove(file);
-                            }
-                        }
-                    }
-                }
+                FileManager fileManager= new FileManager();
+                lstFiles =fileManager.ListFilesByUserId(fileSearch);
 
                 fileSearch.TotalRecords = returnlist.Count;
 
@@ -153,8 +96,8 @@ namespace FunctionApp1
         public async Task<IActionResult> getfile([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestbody = await new StreamReader(req.Body).ReadToEndAsync();
-            string id = JsonConvert.DeserializeObject<TaskManager.Models.File1>(requestbody).Id.ToString();
-            TaskManager.Models.File filefromdb = _context.Files.FirstOrDefault(t => t.Id.ToString() == id);
+            int id = JsonConvert.DeserializeObject<TaskManager.Models.File>(requestbody).Id;
+            TaskManager.Models.File filefromdb =new FileManager().Get (id);
             return new OkObjectResult(filefromdb);
         }
 
@@ -162,7 +105,7 @@ namespace FunctionApp1
         {
             //remove emtpy tag from array
             List<string> tags = new List<string>();
-            for (int i = 0; i < file.Tags.Length; i++)
+            for (int i = 0; i < file.Tags.Count; i++)
             {
                 if (file.Tags[i].Trim().Length != 0)
                 {
@@ -177,11 +120,9 @@ namespace FunctionApp1
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             TaskManager.Models.File file = JsonConvert.DeserializeObject<TaskManager.Models.File>(requestBody);
-                        
-            file.Tags=RemoveEmptyTags(file).ToArray();
 
-            _context.Files.Add(file);
-            _context.SaveChanges();
+            file.Tags = RemoveEmptyTags(file);
+            new FileManager().Insert(file);
             return new OkObjectResult(file);
         }
 
@@ -189,44 +130,21 @@ namespace FunctionApp1
         public async Task<IActionResult> UpdateTask([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            File1 file1 = JsonConvert.DeserializeObject<File1>(requestBody);
-            TaskManager.Models.File filefromdb = _context.Files.FirstOrDefault(t => t.Id.ToString() == file1.Id.ToString());
+            TaskManager.Models.File file1 = JsonConvert.DeserializeObject<TaskManager.Models.File>(requestBody);
+           string result = new FileManager().Update(file1, file1.Id);
 
-            if (filefromdb == null)
-            {
-                return new NotFoundResult();
-            }
-            
-
-            filefromdb.Name = file1.Name;
-            filefromdb.Description = file1.Description;
-            filefromdb.Tags = file1.Tags;
-            filefromdb.Tags = RemoveEmptyTags(filefromdb).ToArray();
-            filefromdb.ParentFolder = file1.ParentFolder;
-            filefromdb.GoogleDrivePath = file1.GoogleDrivePath;
-            filefromdb.AzurePath = file1.AzurePath;
-
-            _context.SaveChanges();
-            return new OkObjectResult(filefromdb);
+            return new OkObjectResult(result);
         }
 
         [FunctionName("deletefile")]
         public async Task<IActionResult> DeleteFile([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            string id = JsonConvert.DeserializeObject<TaskManager.Models.File1>(requestBody).Id.ToString();
+            int id = JsonConvert.DeserializeObject<TaskManager.Models.File>(requestBody).Id;
 
-            TaskManager.Models.File filefromdb = _context.Files.FirstOrDefault(t => t.Id.ToString() == id.ToString());
+            new FileManager().DeleteFile(id);
 
-            if (filefromdb == null)
-            {
-                return new NotFoundResult();
-            }
-
-            _context.Files.Remove(filefromdb);
-            _context.SaveChanges();
-
-            return new OkObjectResult(filefromdb);
+            return new OkResult();
         }
 
     }

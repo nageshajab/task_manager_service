@@ -2,7 +2,7 @@
 {
     public class TaskSearch
     {
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; } 
         public string Status { get; set; } = string.Empty;
         public DateTime DueFromDate { get; set; }
         public DateTime DueToDate { get; set; }

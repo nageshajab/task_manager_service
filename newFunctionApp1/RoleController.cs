@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,25 +8,12 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
-using TaskManagerService;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Web.Http;
-using System.Collections.Generic;
+using DAL;
 
 namespace FunctionApp1
 {
     public class RoleController
     {
-        private readonly MongoDbContext _context;
-
-        public RoleController(MongoDbContext context)
-        {
-            _context = context;
-        }
-
 
         [FunctionName("rolelist")]
         public async Task<IActionResult> rolelist(
@@ -37,7 +23,7 @@ namespace FunctionApp1
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            RoleSearch rolesearch= JsonConvert.DeserializeObject<RoleSearch>(requestBody);
+            RoleSearch rolesearch = JsonConvert.DeserializeObject<RoleSearch>(requestBody);
 
             string responseMessage = string.IsNullOrEmpty(rolesearch.Name)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
@@ -45,7 +31,7 @@ namespace FunctionApp1
 
             IActionResult response = new UnauthorizedResult();
 
-            var roles = _context.Roles.ToList();
+            var roles = new RoleManager().List();
 
             response = new OkObjectResult(roles);
 

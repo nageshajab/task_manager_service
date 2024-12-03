@@ -9,18 +9,13 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
+using DAL;
+using System.Collections.Generic;
 
 namespace FunctionApp1
 {
     public class SugarReadingController
     {
-        private readonly MongoDbContext _context;
-
-        public SugarReadingController(MongoDbContext context)
-        {
-            _context = context;
-        }
-
         [FunctionName("sugarreadinglist")]
         public async Task<IActionResult> SugarReadingList(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
@@ -33,25 +28,12 @@ namespace FunctionApp1
 
             IActionResult response = new UnauthorizedResult();
 
-            IQueryable<SugarReading> sugarReadings;
+            List<SugarReading> sugarReadings;
             try
             {
-                sugarReadings = _context.SugarReadings.Where(t => t.UserId == sugarReadingsearch.UserId);
+                sugarReadings =new SugarReadingManager().List( sugarReadingsearch.UserId);
 
-                sugarReadingsearch.TotalRecords = sugarReadings.Count();
-
-                if (sugarReadingsearch.PageNumber != 0)
-                {   
-                    sugarReadings = sugarReadings.Skip((sugarReadingsearch.PageNumber - 1) * 10).Take(10);
-                }
-                if (sugarReadingsearch.SortBy != string.Empty)
-                {
-                    switch (sugarReadingsearch.SortBy.ToLower())
-                    {
-                        default:
-                            break;
-                    }
-                }
+               
             }
             catch (Exception ex)
             {
@@ -70,9 +52,9 @@ namespace FunctionApp1
         {
             string requestbody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            string id = JsonConvert.DeserializeObject<SugarReading1>(requestbody).Id.ToString();
+            int id = JsonConvert.DeserializeObject<SugarReading>(requestbody).Id;
 
-            SugarReading sugarReadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == id);
+            SugarReading sugarReadingfromdb =new SugarReadingManager().Get( id);
             return new OkObjectResult(sugarReadingfromdb);
         }
 
@@ -81,8 +63,7 @@ namespace FunctionApp1
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             SugarReading sugarReading = JsonConvert.DeserializeObject<SugarReading>(requestBody);
-            _context.SugarReadings.Add(sugarReading);
-            _context.SaveChanges();
+          new SugarReadingManager().Insert(sugarReading);
             return new OkObjectResult(sugarReading);
         }
 
@@ -90,42 +71,21 @@ namespace FunctionApp1
         public async Task<IActionResult> UpdateSugarReading([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            SugarReading1 sugarReading1 = JsonConvert.DeserializeObject<SugarReading1>(requestBody);
-            SugarReading sugarreadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == sugarReading1.Id.ToString());
-
-            if (sugarreadingfromdb == null)
-            {
-                return new NotFoundResult();
-            }
-
-            sugarreadingfromdb.PP = sugarReading1.PP;
-            sugarreadingfromdb.Fasting = sugarReading1.Fasting;
-            sugarreadingfromdb.Medicines = sugarReading1.Medicines;
-            sugarreadingfromdb.Date = sugarReading1.Date;
-            sugarreadingfromdb.Weight = sugarReading1.Weight;
-
-            _context.SaveChanges();
-            return new OkObjectResult(sugarreadingfromdb);
+            SugarReading sugarReading1 = JsonConvert.DeserializeObject<SugarReading>(requestBody);
+            new SugarReadingManager().Update(sugarReading1,sugarReading1.Id);
+                       
+            return new OkResult();
         }
 
         [FunctionName("deletesugarreading")]
         public async Task<IActionResult> DeleteSugarReading([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            string id = JsonConvert.DeserializeObject<SugarReading1>(requestBody).Id.ToString();
+            int id = JsonConvert.DeserializeObject<SugarReading>(requestBody).Id;
 
-            SugarReading sugarReadingfromdb = _context.SugarReadings.FirstOrDefault(t => t.Id.ToString() == id.ToString());
+            new SugarReadingManager().DeleteSugarReadingByid(id);
 
-            if (sugarReadingfromdb == null)
-            {
-                return new NotFoundResult();
-            }
-
-            _context.SugarReadings.Remove(sugarReadingfromdb);
-            _context.SaveChanges();
-
-            return new OkObjectResult(sugarReadingfromdb);
+            return new OkResult();
         }
-
     }
 }

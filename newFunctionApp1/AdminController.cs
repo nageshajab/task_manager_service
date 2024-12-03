@@ -7,46 +7,67 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TaskManager.Models;
-using System.Linq;
-using TaskManagerService;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Web.Http;
 using System.Collections.Generic;
-using ZstdSharp.Unsafe;
+using System.Web.Http;
+using TaskManager.Models;
+using DAL;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
-namespace FunctionApp1
+namespace TaskManagerService
 {
-    public class AdminController
+    public static class AdminController
     {
-        private readonly MongoDbContext _context;
 
-        public AdminController(MongoDbContext context)
+        [FunctionName("register")]
+        public static async Task<IActionResult> Register(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
+           ILogger log)
         {
-            _context = context;
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            User user = JsonConvert.DeserializeObject<User>(requestBody);
+
+            string responseMessage = string.IsNullOrEmpty(user.Email)
+                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                : $"Hello, {user.Email}. This HTTP triggered function executed successfully.";
+
+            IActionResult response = new UnauthorizedResult();
+            UserManager userManager=new UserManager();
+            User userfromdb = userManager.Get(user.Email);
+            if (userfromdb != null)
+                return new OkObjectResult("user with this email already exists");
+
+            user.PasswordHash = SecurePasswordHasher.Hash(user.PasswordHash);
+            user.Roles = new List<string> { "basic" };
+            try
+            {
+                userManager.Insert(user);
+                return new OkObjectResult("User registered");
+            }
+            catch (Exception)
+            {
+                return new InternalServerErrorResult();
+            }
         }
 
-
         [FunctionName("Login")]
-        public  async Task<IActionResult> Login(
+        public static async Task<IActionResult> Login(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            User login = JsonConvert.DeserializeObject<User> (requestBody);
+            User login = JsonConvert.DeserializeObject<User>(requestBody);
 
             string responseMessage = string.IsNullOrEmpty(login.Email)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {login.Email}. This HTTP triggered function executed successfully.";
 
-            IActionResult response =new  UnauthorizedResult();
-                     
-            var user = _context.Users.Where(u => u.Email == login.Email).FirstOrDefault();
+            IActionResult response = new UnauthorizedResult();
+            var user = new UserManager().Get(login.Email);
             if (user == null)
                 return new OkObjectResult("Invalid credentials");
 
@@ -56,20 +77,19 @@ namespace FunctionApp1
             if (passwordhash)
             {
                 var tokenString = GenerateJSONWebToken(user);
-                TaskManager.Models.Token token = new TaskManager.Models.Token()
+                response = new OkObjectResult(new Token()
                 {
                     token = tokenString,
                     Username = login.Email,
                     Roles = user.Roles,
                     UserId = user.Id.ToString()
-                };
-                response =new OkObjectResult(token);
+                });
             }
             return response;
         }
 
         [FunctionName("changepassword")]
-        public async Task<IActionResult> ChangePassword(
+        public static async Task<IActionResult> ChangePassword(
            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -82,8 +102,7 @@ namespace FunctionApp1
                 : $"Hello, {login.Email}. This HTTP triggered function executed successfully.";
 
             IActionResult response = new UnauthorizedResult();
-
-            var user = _context.Users.Where(u => u.Email == login.Email).FirstOrDefault();
+            var user = new UserManager().Get(login.Email);
             if (user == null)
                 return new OkObjectResult("Invalid credentials");
 
@@ -94,62 +113,32 @@ namespace FunctionApp1
             if (passwordhash)
             {
                 user.PasswordHash = SecurePasswordHasher.Hash(login.NewPassword);
-                _context.Users.Update(user);
-                _context.SaveChanges();
-              
+                new UserManager().Update(user,user.Id);
                 response = new OkObjectResult("Password changed");
             }
             return response;
         }
 
-        private static string GenerateJSONWebToken(User userInfo)
+        private static string GenerateJSONWebToken(User userinfo)
         {
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Jwt.Key")));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("jwt.key")));
+            var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userInfo.Email),
-                new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, userinfo.Email),
+                new Claim(JwtRegisteredClaimNames.Email, userinfo.Email),
                 new Claim("roles", "admin")
             };
 
-            var token = new JwtSecurityToken(Environment.GetEnvironmentVariable("Jwt.Issuer"),
-              Environment.GetEnvironmentVariable("Jwt.Audience"),
+            var token = new JwtSecurityToken(Environment.GetEnvironmentVariable("jwt.issuer"),
+              Environment.GetEnvironmentVariable("jwt.audience"),
               claims,
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        [FunctionName("register")]
-        public async Task<IActionResult> Register(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-            ILogger log)
-        {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            User user = JsonConvert.DeserializeObject<User>(requestBody);
-
-            string responseMessage = string.IsNullOrEmpty(user.Email)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {user.Email}. This HTTP triggered function executed successfully.";
-
-            IActionResult response = new UnauthorizedResult();
-            if (_context.Users.Where(u => u.Email == user.Email).Any())
-                return new BadRequestResult();
-
-            user.PasswordHash = SecurePasswordHasher.Hash(user.PasswordHash);
-            user.Roles = new List<string> { "basic" };
-            _context.Users.Add(user);
-           
-            int result = _context.SaveChanges();
-
-            if (result > 0)
-                return new OkObjectResult("User registered");
-            else
-                return new InternalServerErrorResult();
         }
     }
 }

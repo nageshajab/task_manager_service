@@ -8,34 +8,32 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TaskManager.Models;
 using System.Linq;
+using DAL;
 
 namespace FunctionApp1
 {
-    public class AlexaController
+    public class UserController
     {
-        private readonly MongoDbContext _context;
 
-        public AlexaController(MongoDbContext context)
-        {
-            _context = context;
-        }
-
-
-        [FunctionName("therapyvisitRemaining")]
-        public async Task<IActionResult> rolelist(
+        [FunctionName("userlist")]
+        public async Task<IActionResult> userlist(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            
+            UserSearch usersearch = JsonConvert.DeserializeObject<UserSearch>(requestBody);
+
+            string responseMessage = string.IsNullOrEmpty(usersearch.Name)
+                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                : $"Hello, {usersearch.Name}. This HTTP triggered function executed successfully.";
+
             IActionResult response = new UnauthorizedResult();
 
-            var patient = _context.Patients.FirstOrDefault();
+            var users =new UserManager().List();
 
-            string responseMessage = $"you have {patient.therapyVisitsRemaining} thearapy visits remaining, out of maximum benifit of {patient.totalTherapyVisits}";
-            response = new OkObjectResult(responseMessage);
+            response = new OkObjectResult(users);
 
             return response;
         }

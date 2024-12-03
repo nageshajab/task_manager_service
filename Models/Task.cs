@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TaskManager.Models
 {
@@ -10,31 +8,19 @@ namespace TaskManager.Models
     /// </summary>
     public class Task
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public int Id { get; set; }
 
-        [BsonElement("repeatid")]
-        public Guid RepeatId { get; set; }
-
-        [BsonElement("title")]
         public string Title { get; set; } = string.Empty;
 
-        [BsonElement("description")]
         public string Description { get; set; } = string.Empty;
 
-        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-        [BsonElement("dueDate")]
         public DateTime DueDate { get; set; }
 
-
-        [BsonElement("priority")]
         public Priority Priority { get; set; }
 
-        [BsonElement("status")]
         public Status Status { get; set; }
 
-        [BsonElement("userId")]
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
         [NotMapped]
         public bool CanRepeat { get; set; }
@@ -44,28 +30,6 @@ namespace TaskManager.Models
 
         [NotMapped]
         public DateTime EndDate { get; set; }
-    }
-
-    public class Task1
-    {        
-        public string Id { get; set; }
-        public string RepeatId { get; set; }
-        public string Title { get; set; } = string.Empty;
-
-        public string Description { get; set; } = string.Empty;
-
-        public DateTime DueDate { get; set; }
-
-        public Priority Priority { get; set; }
-
-        public Status Status { get; set; }
-
-        public string UserId { get; set; }
-
-       
-        public bool CanRepeat { get; set; }
-       
-        public RepeatType RepeatType { get; set; }
     }
 
     public enum RepeatType

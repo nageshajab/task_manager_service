@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "newFunctionApp1", "newFunctionApp1.csproj", "{9E219CE2-B1DD-43DE-95C4-3514062EE1EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "..\Models\Models.csproj", "{5C5254AF-EC97-4565-BAEA-37AF2CB48BF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "..\DAL\DAL.csproj", "{605DDD43-7270-497B-81E4-0DF12B009EBD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E219CE2-B1DD-43DE-95C4-3514062EE1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E219CE2-B1DD-43DE-95C4-3514062EE1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E219CE2-B1DD-43DE-95C4-3514062EE1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E219CE2-B1DD-43DE-95C4-3514062EE1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C5254AF-EC97-4565-BAEA-37AF2CB48BF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C5254AF-EC97-4565-BAEA-37AF2CB48BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C5254AF-EC97-4565-BAEA-37AF2CB48BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C5254AF-EC97-4565-BAEA-37AF2CB48BF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{605DDD43-7270-497B-81E4-0DF12B009EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{605DDD43-7270-497B-81E4-0DF12B009EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{605DDD43-7270-497B-81E4-0DF12B009EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{605DDD43-7270-497B-81E4-0DF12B009EBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCC19EE6-EF77-4997-BD7E-044B747E1ADA}
+	EndGlobalSection
+EndGlobal
