@@ -126,11 +126,12 @@ namespace FunctionApp1
             task1.DueDate = task.DueDate;
             task1.EndDate = task.EndDate;
             task1.Description = task.Description;
-            task1.CanRepeat = task.CanRepeat;
             task1.RepeatType = task.RepeatType;
             task1.Priority = task.Priority;
             task1.Title = task.Title;
             task1.UserId = task.UserId;
+            task1.Type = task.Type;
+            task1.SubType = task.SubType;
             return task1;
         }
 

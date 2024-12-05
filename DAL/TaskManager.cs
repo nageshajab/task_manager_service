@@ -20,24 +20,35 @@ namespace DAL
 
                 SqlCommand command = new();
                 command.Connection = connection;
-                command.CommandText = $"select * from Tasks where userid={TaskSearch.UserId}";
+                command.CommandText = $"select * from Task where userid={TaskSearch.UserId}";
+
+                if (TaskSearch.DueFromDate != DateTime.MinValue)
+                {
+                    command.CommandText += $" and duedate > '{TaskSearch.DueFromDate.Year}-{TaskSearch.DueFromDate.Month}-{TaskSearch.DueFromDate.Date.Day} 00:00:00.000'";
+                }
+
+                if (TaskSearch.DueToDate != DateTime.MinValue)
+                {
+                    command.CommandText += $" and duedate < '{TaskSearch.DueToDate.Year}-{TaskSearch.DueToDate.Month}-{TaskSearch.DueToDate.Date.Day} 00:00:00.000'";
+                }
+
                 SqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    Task Task = new()
-                    {
-                        Id = reader.GetInt32("id"),
-                        Title = reader.GetString("title"),
-                        Description = reader.GetString("description"),
-                        DueDate= reader.GetDateTime("duedate"),
-                        Priority= (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority")),
-                        Status= (Status)Enum.Parse(typeof(Status), reader.GetString("status")),
-                        UserId = reader.GetInt32("userid"),                        
-                        CanRepeat =Boolean.Parse( reader.GetString("repeat")),
-                        EndDate= reader.GetDateTime("enddate"),
-                        RepeatType= (RepeatType)Enum.Parse( typeof(RepeatType), reader.GetString("repeatType"))
-                    };
+                    Task Task = new();
+                    Task.Id = reader.GetInt32("id");
+                    Task.Title = reader.GetString("title");
+                    Task.Description = reader.GetString("description");
+                    Task.DueDate = reader.GetDateTime("duedate");
+                    Task.Priority = (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority"));
+                    Task.Status = (Status)Enum.Parse(typeof(Status), reader.GetString("status"));
+                    Task.UserId = reader.GetInt32("userid");
+
+                    Task.EndDate = reader.GetDateTime("enddate");
+                    Task.RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType"));
+                    Task.Type = reader.GetString("type");
+                    Task.SubType = reader.GetString("subtype");
 
                     Tasks.Add(Task);
                 }
@@ -47,26 +58,22 @@ namespace DAL
             return Tasks;
         }
 
-        public int Insert(Task Task)
+        public void Insert(Task Task)
         {
-            int Taskid;
-            using (SqlConnection connection = new SqlConnection())
+            using SqlConnection connection = new();
+            connection.ConnectionString = ConnectionString;
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            SqlCommand command = new()
             {
-                connection.ConnectionString = ConnectionString;
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = $"INSERT INTO [dbo].[Task] ([title],[description],[duedate],[priority],[status],[userid],[Repeat] ,[enddate],[repeatType]) VALUES ('{Task.Title}','{Task.Description}','{Task.DueDate}','{Task.Priority}','{Task.Status}',{Task.UserId},{Task.CanRepeat},'{Task.EndDate}','{Task.RepeatType}')";
+                Connection = connection,
+                CommandText = $"INSERT INTO [dbo].[Task] ([title],[description],[duedate],[priority],[status],[userid],[enddate],[repeatType],[type],[subtype]) VALUES ('{Task.Title}','{Task.Description}','{Task.DueDate}','{Task.Priority}','{Task.Status}',{Task.UserId},'{Task.EndDate}','{Task.RepeatType}','{Task.Type}','{Task.SubType}')",
 
-                    command.Transaction = transaction;
-                    Taskid = (int)command.ExecuteScalar();
+                Transaction = transaction
+            };
+            command.ExecuteNonQuery();
 
-                    transaction.Commit();
-                }
-            }
-            return Taskid;
+            transaction.Commit();
         }
 
         public bool DeleteAllTasks()
@@ -106,7 +113,7 @@ namespace DAL
                 {
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
-                    command.CommandText = $"UPDATE [dbo].[Task] SET [title] = '{Task.Title}' ,[description] = '{Task.Description}' ,[duedate] ='{Task.DueDate}',[priority] = '{Task.Priority}' ,[status] = '{Task.Status}',[userid] = {Task.UserId}, [Repeat] = {Task.CanRepeat}, [enddate] = '{Task.EndDate}', [repeatType] ='{Task.RepeatType}' WHERE id={id}";
+                    command.CommandText = $"UPDATE [dbo].[Task] SET [title] = '{Task.Title}' ,[description] = '{Task.Description}' ,[duedate] ='{Task.DueDate}',[priority] = '{Task.Priority}' ,[status] = '{Task.Status}',[userid] = {Task.UserId}, [enddate] = '{Task.EndDate}', [repeatType] ='{Task.RepeatType}',[type]='{Task.Type}',[subtype]='{Task.SubType}' WHERE id={id}";
 
                     command.Transaction = transaction;
                     command.ExecuteNonQuery();
@@ -143,9 +150,10 @@ namespace DAL
                         Priority = (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority")),
                         Status = (Status)Enum.Parse(typeof(Status), reader.GetString("status")),
                         UserId = reader.GetInt32("userid"),
-                        CanRepeat = Boolean.Parse(reader.GetString("repeat")),
                         EndDate = reader.GetDateTime("enddate"),
-                        RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType"))
+                        RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType")),
+                        Type = reader.GetString("type"),
+                        SubType = reader.GetString("subtype")
                     };
                 }
                 connection.Close();

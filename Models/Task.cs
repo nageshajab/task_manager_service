@@ -21,17 +21,13 @@ namespace TaskManager.Models
         public Status Status { get; set; }
 
         public int UserId { get; set; }
-
-        [NotMapped]
-        public bool CanRepeat { get; set; }
-
-        [NotMapped]
         public RepeatType RepeatType { get; set; }
-
-        [NotMapped]
         public DateTime EndDate { get; set; }
-    }
 
+        public string Type { get; set; }
+        public string SubType { get; set; }
+    }
+       
     public enum RepeatType
     {
         None = 0,
@@ -43,16 +39,16 @@ namespace TaskManager.Models
 
     public enum Priority
     {
-        High=0,
-        Medium=1,
-        Low=2
+        High = 0,
+        Medium = 1,
+        Low = 2
     }
 
     public enum Status
     {
         None = -1,
-        Pending =0,
-        InProgress=1,
-        Completed=2
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2
     }
 }
