@@ -30,21 +30,18 @@ namespace FunctionApp1
 
             IActionResult response = new UnauthorizedResult();
 
-            List<TaskManager.Models.Task> lstTasks;
             try
             {
                 taskManager = new DAL.TaskManager();
-                lstTasks = taskManager.ListTasksByUserId(taskSearch);
-
+                taskSearch = taskManager.ListTasksByUserId(taskSearch);              
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
             TaskIndexViewModel indexViewModel = new TaskIndexViewModel()
             {
-                ListOfTasks = lstTasks.ToList(),
+                ListOfTasks = taskSearch.Tasks,
                 TaskSearch = taskSearch
             };
 

@@ -9,28 +9,40 @@ namespace DAL
     {
         public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
 
-        public List<Task> ListTasksByUserId(TaskSearch TaskSearch)
+        public TaskSearch ListTasksByUserId(TaskSearch TaskSearch)
         {
-            List<Task> Tasks = [];
+            string wherecommand = $"where userid ={TaskSearch.UserId} and status!='Completed' ";
+            string from = "1=1", to = "1=1";
+            if (TaskSearch.DueFromDate != DateTime.MinValue)
+            {
+                from = $" duedate > '{TaskSearch.DueFromDate.Year}-{TaskSearch.DueFromDate.Month}-{TaskSearch.DueFromDate.Date.Day} 00:00:00.000'";
+            }
+            if (TaskSearch.DueToDate != DateTime.MinValue)
+            {
+                to = $" duedate < '{TaskSearch.DueToDate.Year}-{TaskSearch.DueToDate.Month}-{TaskSearch.DueToDate.Date.Day} 00:00:00.000'";
+            }
 
+            if (from != string.Empty)
+            {
+                wherecommand += $" and ({from} and {to}) ";
+            }
+
+            List<Task> Tasks = [];
             using (SqlConnection connection = new SqlConnection())
             {
                 connection.ConnectionString = ConnectionString;
                 connection.Open();
 
+                SqlCommand totalRecords = new SqlCommand();
+                totalRecords.Connection = connection;
+                totalRecords.CommandText = $"select count(*) from Task {wherecommand}";
+                TaskSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
+
                 SqlCommand command = new();
                 command.Connection = connection;
-                command.CommandText = $"select * from Task where userid={TaskSearch.UserId}";
-
-                if (TaskSearch.DueFromDate != DateTime.MinValue)
-                {
-                    command.CommandText += $" and duedate > '{TaskSearch.DueFromDate.Year}-{TaskSearch.DueFromDate.Month}-{TaskSearch.DueFromDate.Date.Day} 00:00:00.000'";
-                }
-
-                if (TaskSearch.DueToDate != DateTime.MinValue)
-                {
-                    command.CommandText += $" and duedate < '{TaskSearch.DueToDate.Year}-{TaskSearch.DueToDate.Month}-{TaskSearch.DueToDate.Date.Day} 00:00:00.000'";
-                }
+                command.CommandText = $"select * from Task {wherecommand}";
+                int startrecord = TaskSearch.PageNumber * 10;
+                command.CommandText += $" ORDER BY duedate, id OFFSET {startrecord} ROWS FETCH NEXT 10 ROWS ONLY";
 
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -55,6 +67,58 @@ namespace DAL
 
                 connection.Close();
             }
+
+            TaskSearch.Tasks = Tasks;
+            var pendingtasks = GetPendingTasks(TaskSearch);
+
+            for (int i = 0; i < pendingtasks.Count; i++)
+            {
+                if (!TaskSearch.Tasks.Where(t => t.Id == pendingtasks[i].Id).Any())
+                    TaskSearch.Tasks.Add(pendingtasks[i]);
+            }
+            return TaskSearch;
+        }
+
+        public List<Task> GetPendingTasks(TaskSearch TaskSearch)
+        {
+            string wherecommand = $"where userid ={TaskSearch.UserId} ";
+            wherecommand += $"and duedate < '{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Date.Day} 00:00:00.000'";
+            wherecommand += $" and status!='Completed'";
+
+            List<Task> Tasks = [];
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.ConnectionString = ConnectionString;
+                connection.Open();
+
+                SqlCommand command = new();
+                command.Connection = connection;
+                command.CommandText = $"select * from Task {wherecommand}";
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Task Task = new();
+                    Task.Id = reader.GetInt32("id");
+                    Task.Title = reader.GetString("title");
+                    Task.Description = reader.GetString("description");
+                    Task.DueDate = reader.GetDateTime("duedate");
+                    Task.Priority = (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority"));
+                    Task.Status = (Status)Enum.Parse(typeof(Status), reader.GetString("status"));
+                    Task.UserId = reader.GetInt32("userid");
+
+                    Task.EndDate = reader.GetDateTime("enddate");
+                    Task.RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType"));
+                    Task.Type = reader.GetString("type");
+                    Task.SubType = reader.GetString("subtype");
+
+                    Tasks.Add(Task);
+                }
+
+                connection.Close();
+            }
+
             return Tasks;
         }
 

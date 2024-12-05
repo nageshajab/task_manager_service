@@ -9,6 +9,7 @@
         public string SortBy { get; set; } = string.Empty;
         public int PageNumber { get; set; } = 1;
         public int TotalRecords { get; set;} = 0;
-
+        public List<Task> Tasks { get; set; }
+     
     }
 }
