@@ -6,15 +6,13 @@ namespace DAL
 {
     public class UrlManager
     {
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
-
         public List<Url> List(int Urlid)
         {
             List<Url> Urls = new();
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -44,7 +42,7 @@ namespace DAL
             int Urlid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -64,7 +62,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -84,7 +82,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -111,7 +109,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -133,7 +131,7 @@ namespace DAL
             Url Url = new Url();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();

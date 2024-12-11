@@ -15,7 +15,7 @@ namespace DAL
         public string paramTag = "tag";
         public string paramBlogid = "blogid";
         public string paramId = "id";
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
+      
 
         public List<BlogPost> List(int userid)
         {
@@ -23,7 +23,7 @@ namespace DAL
             List<BlogPost> blogPosts = new List<BlogPost>();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -64,7 +64,7 @@ namespace DAL
             int blogid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -87,7 +87,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -113,7 +113,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -172,7 +172,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -196,7 +196,7 @@ namespace DAL
             BlogPost blogPost = new BlogPost();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
 
 
@@ -229,7 +229,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common.ConnectionString;
                 connection.Open();
 
                 SqlCommand command2 = new SqlCommand();

@@ -15,7 +15,6 @@ namespace DAL
         public string paramRoles = "roles";
         public string paramUserId = "userid";
         public string paramRoleId = "roleid";
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
 
         public string querySelectUsers = "select userquery.*,rolequery.roles from (select u.email,STRING_AGG(name, ', ') as roles from roles r,userroles ur,users u where r.id=ur.RoleId and ur.Userid=u.id group by email) rolequery, (select u.email, u.id,u.passwordHash,u.newPassword from users u) userquery where rolequery.email=userquery.email";
 
@@ -25,7 +24,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -54,7 +53,7 @@ namespace DAL
             int userid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -77,7 +76,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -138,7 +137,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -162,7 +161,7 @@ namespace DAL
             User User = new User();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -190,7 +189,7 @@ namespace DAL
             User User = new User();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -215,9 +214,7 @@ namespace DAL
                 return null;
 
             return User;
-        }
-
-       
+        }  
     }
 
     public enum Roles

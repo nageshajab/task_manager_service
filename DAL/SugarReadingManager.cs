@@ -3,20 +3,19 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Configuration;
 using System.Reflection;
+using System.Security.Authentication;
 
 namespace DAL
 {
     public class SugarReadingManager
     {
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
-
         public List<SugarReading> List(int userid)
         {
             List<SugarReading> SugarReadings = new List<SugarReading>();
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -49,7 +48,7 @@ namespace DAL
             int SugarReadingid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -71,7 +70,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -91,7 +90,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -118,7 +117,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -140,7 +139,7 @@ namespace DAL
             SugarReading SugarReading = new SugarReading();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -161,14 +160,8 @@ namespace DAL
 
                 }
                 connection.Close();
-            }
-
-            
+            }   
             return SugarReading;
         }
-
-
     }
-
-
 }

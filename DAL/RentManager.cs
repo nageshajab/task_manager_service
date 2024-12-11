@@ -5,7 +5,7 @@ using Task = TaskManager.Models.Task;
 
 namespace DAL
 {
-    public class TaskManager
+    public class RentManager
     {
         string listtaskquery = "select * from (select * from Task where userid =@userid and status!='Completed'  and (@fromquery and @toquery) union select * from Task where userid =@userid and duedate < '@duedate' and status!='Completed') a ORDER BY duedate, id OFFSET @skiprecords ROWS FETCH NEXT 10 ROWS ONLY";
 
@@ -159,7 +159,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString =Common. ConnectionString;
+                connection.ConnectionString = Common.ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {

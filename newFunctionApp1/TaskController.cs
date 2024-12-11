@@ -22,6 +22,8 @@ namespace FunctionApp1
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+            //string str = "Fri Nov 01 2024 00:00:00 GMT+0530 (India Standard Time)";
+            //DateTime dt = DateTime.Parse(str);
 
             log.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -139,6 +141,17 @@ namespace FunctionApp1
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             TaskManager.Models.Task task = JsonConvert.DeserializeObject<TaskManager.Models.Task>(requestBody);
             taskManager.Update(task, task.Id);
+
+            return new OkResult();
+        }
+
+        [FunctionName("updatetaskstatus")]
+        public async Task<IActionResult> updatetaskstatus([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
+        {
+            taskManager = new DAL.TaskManager();
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            TaskManager.Models.Task task = JsonConvert.DeserializeObject<TaskManager.Models.Task>(requestBody);
+            taskManager.updatetaskstatus( task.Id,task.Status.ToString());
 
             return new OkResult();
         }

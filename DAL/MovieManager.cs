@@ -6,15 +6,13 @@ namespace DAL
 {
     public class MovieManager
     {
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
-
         public List<Movie> ListMoviesByUserId(MovieSearch movieSearch)
         {
             List<Movie> movies = [];
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString = Common.ConnectionString;
                 connection.Open();
 
 
@@ -52,7 +50,7 @@ namespace DAL
             int movieid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -73,7 +71,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -100,7 +98,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -123,7 +121,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -157,7 +155,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())

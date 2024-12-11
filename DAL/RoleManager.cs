@@ -8,15 +8,13 @@ namespace DAL
 {
     public class RoleManager
     {
-        public string ConnectionString = Environment.GetEnvironmentVariable("ApplicationDbContext");
-
         public List<Role> List()
         {
             List<Role> roles = new List<Role>();
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common . ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -43,7 +41,7 @@ namespace DAL
             int roleid;
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -65,7 +63,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -85,7 +83,7 @@ namespace DAL
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -112,7 +110,7 @@ namespace DAL
 
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -134,7 +132,7 @@ namespace DAL
             Role Role = new Role();
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = ConnectionString;
+                connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
@@ -150,13 +148,7 @@ namespace DAL
                 }
                 connection.Close();
             }
-
-            
             return Role;
         }
-
-
     }
-
-
 }
