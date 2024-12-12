@@ -1,55 +1,42 @@
-﻿using TaskManager.Models;
+﻿using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using Task = TaskManager.Models.Task;
+using Models;
+using TaskManager.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DAL
 {
     public class RentManager
     {
-        string listtaskquery = "select * from (select * from Task where userid =@userid and status!='Completed'  and (@fromquery and @toquery) union select * from Task where userid =@userid and duedate < '@duedate' and status!='Completed') a ORDER BY duedate, id OFFSET @skiprecords ROWS FETCH NEXT 10 ROWS ONLY";
+        string insertTenant = "INSERT INTO[dbo].[Tenant] ([name],[rent],[roomlocation])             VALUES(@name,@rent,@roomlocation)";
+        
+        string insertRent = "INSERT INTO[dbo].[Rents]([tenantid],[amount] ,[date])        VALUES(@tenantid,@amount,@date)";
 
-        string countquery = "select count(*) from (select * from Task where userid =@userid and status!='Completed'  and (@fromquery and @toquery) union select * from Task where userid =@userid and duedate < '@duedate' and status!='Completed') a";
-
-        public TaskSearch ListTasksByUserId(TaskSearch TaskSearch)
+        public RentSearch ListRentsByUserId( RentSearch RentSearch)
         {
             string from = "1=1", to = "1=1";
-            DateTime duefrom = TaskSearch.DueFromDate == null ? DateTime.MinValue : DateTime.Parse(TaskSearch.DueFromDate);
-            DateTime dueto = TaskSearch.DueToDate == null ? DateTime.MinValue : DateTime.Parse(TaskSearch.DueToDate);
-
-            string duefromdate = $"{duefrom.Year}-{duefrom.Month}-{duefrom.Date.Day} 00:00:00.000";
-            string duetodate = $"{dueto.Year}-{dueto.Month}-{dueto.Date.Day} 00:00:00.000";
-
-            if (duefrom != DateTime.MinValue)
-                from = $" duedate > '{duefromdate}'";
-
-            if (dueto != DateTime.MinValue)
-                to = $" duedate < '{duetodate}'";
-
-            List<Task> Tasks = [];
+          
+            List<Rent> Rents = [];
             using (SqlConnection connection = new SqlConnection())
             {
                 connection.ConnectionString =Common. ConnectionString;
                 connection.Open();
 
+                string countquery = "select count(r.id) from rents r, tenant t where r.tenantid=t.id";
+                string listquery = "select * from rents r, tenant t where r.tenantid=t.id";
                 SqlCommand totalRecords = new()
                 {
                     Connection = connection,
-                    CommandText = $"{countquery.Replace("@userid", TaskSearch.UserId.ToString())
-                    .Replace("@fromquery", from)
-                    .Replace("@toquery", to)
-                    .Replace("@duedate", duefromdate)}"
+                    CommandText = $"{countquery.Replace("@userid", RentSearch.UserId.ToString())}"
                 };
-                TaskSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
+                RentSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
 
-                int startrecord = (TaskSearch.PageNumber - 1) * 10;
+                int startrecord = (RentSearch.PageNumber - 1) * 10;
                 SqlCommand command = new()
                 {
                     Connection = connection,
-                    CommandText = $"{listtaskquery.Replace("@userid", TaskSearch.UserId.ToString())
-                    .Replace("@fromquery", from)
-                    .Replace("@toquery", to)
-                    .Replace("@duedate", duefromdate)
+                    CommandText = $"{listquery.Replace("@userid", RentSearch.UserId.ToString())
                     .Replace("@skiprecords", startrecord.ToString())}"
                 };
 
@@ -57,32 +44,77 @@ namespace DAL
 
                 while (reader.Read())
                 {
-                    Task Task = new();
-                    Task.Id = reader.GetInt32("id");
-                    Task.Title = reader.GetString("title");
-                    Task.Description = reader.GetString("description");
-                    Task.DueDate = reader.GetDateTime("duedate");
-                    Task.Priority = (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority"));
-                    Task.Status = (Status)Enum.Parse(typeof(Status), reader.GetString("status"));
-                    Task.UserId = reader.GetInt32("userid");
+                   Rent Rent = new();
+                    Rent.Id = reader.GetInt32("id");
+                    Rent.TenantId = reader.GetInt32("TenantId");
+                    Rent.Amount = reader.GetInt32("Amount");
+                    Rent.Date = reader.GetDateTime("date");
+                    Rent.Name= reader.GetString("name");
+                    Rent.Rent =  reader.GetInt32("rent");
+                    Rent.RoomLocation= reader.GetString("RoomLocation");
 
-                    Task.EndDate = reader.GetDateTime("enddate");
-                    Task.RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType"));
-                    Task.Type = reader.GetString("type");
-                    Task.SubType = reader.GetString("subtype");
-
-                    Tasks.Add(Task);
+                    Rents.Add(Rent);
                 }
 
                 connection.Close();
             }
 
-            TaskSearch.Tasks = Tasks;
+            RentSearch.Rents = Rents;
 
-            return TaskSearch;
+            return RentSearch;
         }
 
-        public void Insert(Task Task)
+        public RentSearch ListTenantsByUserId(RentSearch RentSearch)
+        {
+            string from = "1=1", to = "1=1";
+
+            List<Tenant> tenants= [];
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.ConnectionString = Common.ConnectionString;
+                connection.Open();
+
+                string countquery = $"select count(*) from tenant where userid={RentSearch.UserId}";
+
+                string listquery = "select * from tenant where userid=@userid";
+
+                SqlCommand totalRecords = new()
+                {
+                    Connection = connection,
+                    CommandText = $"{countquery}"
+                };
+                RentSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
+
+                int startrecord = (RentSearch.PageNumber - 1) * 10;
+                SqlCommand command = new()
+                {
+                    Connection = connection,
+                    CommandText = $"{listquery.Replace("@userid", RentSearch.UserId.ToString()
+                    )}"
+                };
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Tenant tenant = new();
+                    tenant.Id = reader.GetInt32("id");
+                    tenant.Name = reader.GetString("name");
+                    tenant.Rent= reader.GetInt32("rent");
+                    tenant.RoomLocation = reader.GetString("RoomLocation");
+
+                    tenants.Add(tenant);
+                }
+
+                connection.Close();
+            }
+
+            RentSearch.Tenants = tenants;
+
+            return RentSearch;
+        }
+
+        public void InsertTenant(Tenant tenant)
         {
             using SqlConnection connection = new();
             connection.ConnectionString =Common. ConnectionString;
@@ -91,7 +123,9 @@ namespace DAL
             SqlCommand command = new()
             {
                 Connection = connection,
-                CommandText = $"INSERT INTO [dbo].[Task] ([title],[description],[duedate],[priority],[status],[userid],[enddate],[repeatType],[type],[subtype]) VALUES ('{Task.Title}','{Task.Description}','{Task.DueDate}','{Task.Priority}','{Task.Status}',{Task.UserId},'{Task.EndDate}','{Task.RepeatType}','{Task.Type}','{Task.SubType}')",
+                CommandText = $"{insertTenant.Replace("@name",tenant.Name)
+                .Replace("@rent",tenant.Rent.ToString())
+                .Replace("@roomlocation",tenant.RoomLocation)}",
 
                 Transaction = transaction
             };
@@ -100,7 +134,27 @@ namespace DAL
             transaction.Commit();
         }
 
-        public bool DeleteAllTasks()
+        public void InsertRent(Rent rent)
+        {
+            using SqlConnection connection = new();
+            connection.ConnectionString = Common.ConnectionString;
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            SqlCommand command = new()
+            {
+                Connection = connection,
+                CommandText = $"{insertRent.Replace("@tenantid", rent.TenantId.ToString())
+                .Replace("@amount", rent.Amount.ToString())
+                .Replace("@date", rent.Date.ToString())}",
+
+                Transaction = transaction
+            };
+            command.ExecuteNonQuery();
+
+            transaction.Commit();
+        }
+
+        public bool DeleteAllRents()
         {
             using (SqlConnection connection = new SqlConnection())
             {
@@ -111,8 +165,14 @@ namespace DAL
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
                     command.Transaction = transaction;
-                    command.CommandText = "delete Task";
+                    command.CommandText = "delete Rent";
                     command.ExecuteScalar();
+
+                    SqlCommand command2 = new SqlCommand();
+                    command2.Connection = connection;
+                    command2.Transaction = transaction;
+                    command2.CommandText = "delete tenant";
+                    command2.ExecuteScalar();
 
                     transaction.Commit();
                 }
@@ -120,13 +180,14 @@ namespace DAL
             return true;
         }
 
-        public string Update(Task Task, int id)
+        public string UpdateRent(Rent Rent, int id)
         {
-            Task TaskFromDb = Get(id);
+            string updaterentquery = "update rent set tenantid=@tenantid, amount=@amount, date='@date' where id=@id";
+            Rent RentFromDb = Get(id);
 
-            if (TaskFromDb.Id == 0)
+            if (RentFromDb.Id == 0)
             {
-                return "Task with id not found";
+                return "Rent with id not found";
             }
 
             using (SqlConnection connection = new SqlConnection())
@@ -137,7 +198,10 @@ namespace DAL
                 {
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
-                    command.CommandText = $"UPDATE [dbo].[Task] SET [title] = '{Task.Title}' ,[description] = '{Task.Description}' ,[duedate] ='{Task.DueDate}',[priority] = '{Task.Priority}' ,[status] = '{Task.Status}',[userid] = {Task.UserId}, [enddate] = '{Task.EndDate}', [repeatType] ='{Task.RepeatType}',[type]='{Task.Type}',[subtype]='{Task.SubType}' WHERE id={id}";
+                    command.CommandText = $"{updaterentquery.Replace("@tenantid",Rent.TenantId.ToString())
+                        .Replace("@amount",Rent.Amount.ToString())
+                        .Replace("@date",Rent.Date.ToString())
+                        .Replace("@id",Rent.Id.ToString())}";
 
                     command.Transaction = transaction;
                     command.ExecuteNonQuery();
@@ -148,13 +212,14 @@ namespace DAL
             return "updated";
         }
 
-        public string updatetaskstatus(int id, string status)
+        public string UpdateTenant(Tenant tenant, int id)
         {
-            Task TaskFromDb = Get(id);
+            string updatetenantquery = "update tenant set name='@name', rent=@rent, roomlocation='@roomlocation' where id=@id";
+            Tenant tenantFromDb = Get(id);
 
-            if (TaskFromDb.Id == 0)
+            if (tenantFromDb.Id == 0)
             {
-                return "Task with id not found";
+                return "Tenant with id not found";
             }
 
             using (SqlConnection connection = new SqlConnection())
@@ -165,7 +230,10 @@ namespace DAL
                 {
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
-                    command.CommandText = $"UPDATE [dbo].[Task] SET [status] = '{status}' WHERE id={id}";
+                    command.CommandText = $"{updatetenantquery.Replace("@name", tenant.Name)
+                        .Replace("@rent", tenant.Rent.ToString())
+                        .Replace("@roomlocation", tenant.RoomLocation)
+                        .Replace("@id", tenant.Id.ToString())}";
 
                     command.Transaction = transaction;
                     command.ExecuteNonQuery();
@@ -176,9 +244,9 @@ namespace DAL
             return "updated";
         }
 
-        public Task Get(int id)
+        public Rent Get(int id)
         {
-            Task Task = new();
+            Rent Rent = new();
 
             using (SqlConnection connection = new SqlConnection())
             {
@@ -187,33 +255,56 @@ namespace DAL
 
                 SqlCommand command = new SqlCommand();
                 command.Connection = connection;
-                command.CommandText = $"select * from Task where id={id}";
+                command.CommandText = $"select * from Rent where id={id}";
 
                 SqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    Task = new()
+                    Rent = new()
                     {
                         Id = reader.GetInt32("id"),
-                        Title = reader.GetString("title"),
-                        Description = reader.GetString("description"),
-                        DueDate = reader.GetDateTime("duedate"),
-                        Priority = (Priority)Enum.Parse(typeof(Priority), reader.GetString("priority")),
-                        Status = (Status)Enum.Parse(typeof(Status), reader.GetString("status")),
-                        UserId = reader.GetInt32("userid"),
-                        EndDate = reader.GetDateTime("enddate"),
-                        RepeatType = (RepeatType)Enum.Parse(typeof(RepeatType), reader.GetString("repeatType")),
-                        Type = reader.GetString("type"),
-                        SubType = reader.GetString("subtype")
+                        TenantId= reader.GetInt32("tenantid"),
+                        Amount= reader.GetInt32("amount"),
+                        Date= reader.GetDateTime("date")
                     };
                 }
                 connection.Close();
             }
-            return Task;
+            return Rent;
         }
 
-        public bool DeleteTask(int id)
+        public Tenant GetTenant(int id)
+        {
+            Tenant tenant = new();
+
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.ConnectionString = Common.ConnectionString;
+                connection.Open();
+
+                SqlCommand command = new SqlCommand();
+                command.Connection = connection;
+                command.CommandText = $"select * from tenant where id={id}";
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tenant = new()
+                    {
+                        Id = reader.GetInt32("id"),
+                        Name = reader.GetString("name"),
+                        Rent= reader.GetInt32("rent"),
+                        RoomLocation= reader.GetString("roomlocation")
+                    };
+                }
+                connection.Close();
+            }
+            return tenant;
+        }
+
+        public bool DeleteRent(int id)
         {
             using (SqlConnection connection = new SqlConnection())
             {
@@ -225,7 +316,28 @@ namespace DAL
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
                     command.Transaction = transaction;
-                    command.CommandText = "delete Task where id=" + id;
+                    command.CommandText = "delete Rent where id=" + id;
+                    command.ExecuteScalar();
+
+                    transaction.Commit();
+                }
+            }
+            return true;
+        }
+
+        public bool DeleteTenant(int id)
+        {
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.ConnectionString = Common.ConnectionString;
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    SqlCommand command = new SqlCommand();
+                    command.Connection = connection;
+                    command.Transaction = transaction;
+                    command.CommandText = "delete tenant where id=" + id;
                     command.ExecuteScalar();
 
                     transaction.Commit();
