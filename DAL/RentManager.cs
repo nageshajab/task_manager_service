@@ -9,9 +9,9 @@ namespace DAL
 {
     public class RentManager
     {
-        string insertTenant = "INSERT INTO[dbo].[Tenant] ([name],[rent],[roomlocation])             VALUES(@name,@rent,@roomlocation)";
+        string insertTenant = "INSERT INTO[dbo].[Tenant] ([name],[rent],[roomlocation]) VALUES('@name',@rent,'@roomlocation')";
         
-        string insertRent = "INSERT INTO[dbo].[Rents]([tenantid],[amount] ,[date])        VALUES(@tenantid,@amount,@date)";
+        string insertRent = "INSERT INTO[dbo].[Rents]([tenantid],[amount] ,[date]) VALUES(@tenantid,@amount,'@date')";
 
         public RentSearch ListRentsByUserId( RentSearch RentSearch)
         {
@@ -64,7 +64,7 @@ namespace DAL
             return RentSearch;
         }
 
-        public RentSearch ListTenantsByUserId(RentSearch RentSearch)
+        public TenantSearch ListTenantsByUserId(TenantSearch tenantSearch)
         {
             string from = "1=1", to = "1=1";
 
@@ -74,7 +74,7 @@ namespace DAL
                 connection.ConnectionString = Common.ConnectionString;
                 connection.Open();
 
-                string countquery = $"select count(*) from tenant where userid={RentSearch.UserId}";
+                string countquery = $"select count(*) from tenant where userid={tenantSearch.UserId}";
 
                 string listquery = "select * from tenant where userid=@userid";
 
@@ -83,13 +83,13 @@ namespace DAL
                     Connection = connection,
                     CommandText = $"{countquery}"
                 };
-                RentSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
+                tenantSearch.TotalRecords = (int)totalRecords.ExecuteScalar();
 
-                int startrecord = (RentSearch.PageNumber - 1) * 10;
+                int startrecord = (tenantSearch.PageNumber - 1) * 10;
                 SqlCommand command = new()
                 {
                     Connection = connection,
-                    CommandText = $"{listquery.Replace("@userid", RentSearch.UserId.ToString()
+                    CommandText = $"{listquery.Replace("@userid", tenantSearch.UserId.ToString()
                     )}"
                 };
 
@@ -109,9 +109,9 @@ namespace DAL
                 connection.Close();
             }
 
-            RentSearch.Tenants = tenants;
+            tenantSearch.Tenants = tenants;
 
-            return RentSearch;
+            return tenantSearch;
         }
 
         public void InsertTenant(Tenant tenant)

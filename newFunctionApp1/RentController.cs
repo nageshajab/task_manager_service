@@ -58,23 +58,23 @@ namespace FunctionApp1
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            RentSearch rentSearch = JsonConvert.DeserializeObject<RentSearch>(requestBody);
+            TenantSearch tenantSearch= JsonConvert.DeserializeObject<TenantSearch>(requestBody);
 
             IActionResult response = new UnauthorizedResult();
 
             try
             {
                 rentManager = new DAL.RentManager();
-                rentSearch = rentManager.ListTenantsByUserId(rentSearch);
+                tenantSearch= rentManager.ListTenantsByUserId(tenantSearch);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            RentIndexViewModel indexViewModel = new()
+            TenantIndexViewModel indexViewModel = new()
             {
-                Rents = rentSearch.Rents,
-                RentSearch = rentSearch
+                Tenants= tenantSearch.Tenants,
+                TenantSearch = tenantSearch
             };
 
             return new OkObjectResult(indexViewModel);

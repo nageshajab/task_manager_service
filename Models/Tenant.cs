@@ -13,6 +13,7 @@ namespace TaskManager.Models
         public string Name { get; set; }
         public int Rent { get; set; }
         public string RoomLocation { get; set; }
+        public int UserId { get; set; }
     }
 
     public class Rent:Tenant
@@ -27,10 +28,6 @@ namespace TaskManager.Models
     {
         public int UserId { get; set; }
 
-        //public string Status { get; set; } = string.Empty;
-        //public string DueFromDate { get; set; }
-        //public string DueToDate { get; set; }
-
         public string SortBy { get; set; } = string.Empty;
         public int PageNumber { get; set; } = 1;
         public int TotalRecords { get; set; } = 0;
@@ -38,10 +35,27 @@ namespace TaskManager.Models
         public List<Tenant> Tenants{ get; set; }
     }
 
+    public class TenantSearch
+    {
+        public int UserId { get; set; }
+
+        public string SortBy { get; set; } = string.Empty;
+        public int PageNumber { get; set; } = 1;
+        public int TotalRecords { get; set; } = 0;
+        public List<Tenant> Tenants{ get; set; }        
+    }
+
     public class RentIndexViewModel
     {
-        public List<TaskManager.Models.Rent> Rents{ get; set; }
+        public List<Rent> Rents{ get; set; }
         public RentSearch RentSearch { get; set; }
+        public int TotalPages { get; set; }
+    }
+
+    public class TenantIndexViewModel
+    {
+        public List<Tenant> Tenants{ get; set; }
+        public TenantSearch TenantSearch{ get; set; }
         public int TotalPages { get; set; }
     }
 }
